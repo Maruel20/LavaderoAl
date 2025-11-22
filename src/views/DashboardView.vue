@@ -169,58 +169,121 @@
 </template>
 
 <script>
+import api from '@/services/api'
+
 export default {
   name: 'DashboardView',
   data() {
     return {
       metrics: {
-        serviciosHoy: 24,
-        ingresosHoy: 450000,
-        clientesActivos: 156,
-        insumosBajos: 3
+        serviciosHoy: 0,
+        ingresosHoy: 0,
+        clientesActivos: 0,
+        insumosBajos: 0
       },
-      serviciosRecientes: [
-        {
-          id: 1,
-          cliente: 'Juan Pérez',
-          vehiculo: 'Toyota Corolla ABC123',
-          tipoServicio: 'Lavado Completo',
-          empleado: 'Carlos Gómez',
-          monto: 25000,
-          estado: 'Completado',
-          estadoColor: 'success'
-        },
-        {
-          id: 2,
-          cliente: 'María López',
-          vehiculo: 'Honda Civic XYZ789',
-          tipoServicio: 'Lavado Express',
-          empleado: 'Ana Martínez',
-          monto: 15000,
-          estado: 'En Proceso',
-          estadoColor: 'warning'
-        },
-        {
-          id: 3,
-          cliente: 'Pedro Ramírez',
-          vehiculo: 'Chevrolet Spark DEF456',
-          tipoServicio: 'Encerado',
-          empleado: 'Luis Torres',
-          monto: 35000,
-          estado: 'Completado',
-          estadoColor: 'success'
+      serviciosRecientes: [],
+      alertasInventario: [],
+      empleadosActivos: []
+    }
+  },
+  mounted() {
+    this.cargarDatos()
+  },
+  methods: {
+    async cargarDatos() {
+      try {
+        await Promise.all([
+          this.cargarMetricas(),
+          this.cargarServiciosRecientes(),
+          this.cargarAlertasInventario(),
+          this.cargarEmpleadosActivos()
+        ])
+      } catch (error) {
+        console.error('Error al cargar datos del dashboard:', error)
+      }
+    },
+    async cargarMetricas() {
+      try {
+        const data = await api.getMetricasDashboard()
+        this.metrics = {
+          serviciosHoy: data.servicios_hoy || 0,
+          ingresosHoy: data.ingresos_hoy || 0,
+          clientesActivos: data.clientes_activos || 0,
+          insumosBajos: data.insumos_bajos || 0
         }
-      ],
-      alertasInventario: [
-        { id: 1, nombre: 'Shampoo Premium', stock: 2, unidad: 'L' },
-        { id: 2, nombre: 'Cera Líquida', stock: 1, unidad: 'L' },
-        { id: 3, nombre: 'Toallas Microfibra', stock: 5, unidad: 'unidades' }
-      ],
-      empleadosActivos: [
-        { id: 1, nombre: 'Carlos Gómez', serviciosHoy: 8, comisionHoy: 80000 },
-        { id: 2, nombre: 'Ana Martínez', serviciosHoy: 6, comisionHoy: 60000 },
-        { id: 3, nombre: 'Luis Torres', serviciosHoy: 5, comisionHoy: 55000 }
-      ]
+      } catch (error) {
+        console.error('Error al cargar métricas:', error)
+      }
+    },
+    async cargarServiciosRecientes() {
+      try {
+        const data = await api.getServiciosRecientes(10)
+        this.serviciosRecientes = data.map(s => ({
+          id: s.id,
+          cliente: s.patente,
+          vehiculo: `${s.tipo_vehiculo} ${s.patente}`,
+          tipoServicio: this.formatearTipoServicio(s.tipo_servicio),
+          empleado: s.nombre_empleado || 'Sin asignar',
+          monto: s.monto_total,
+          estado: this.formatearEstado(s.estado),
+          estadoColor: this.getEstadoColor(s.estado)
+        }))
+      } catch (error) {
+        console.error('Error al cargar servicios recientes:', error)
+      }
+    },
+    async cargarAlertasInventario() {
+      try {
+        const data = await api.getAlertasInventarioDashboard()
+        this.alertasInventario = data.map(a => ({
+          id: a.id,
+          nombre: a.nombre,
+          stock: a.stock,
+          unidad: a.unidad
+        }))
+      } catch (error) {
+        console.error('Error al cargar alertas de inventario:', error)
+      }
+    },
+    async cargarEmpleadosActivos() {
+      try {
+        const data = await api.getEmpleadosTop(5)
+        this.empleadosActivos = data.map(e => ({
+          id: e.id,
+          nombre: e.nombre,
+          serviciosHoy: e.total_servicios || 0,
+          comisionHoy: e.total_comisiones || 0
+        }))
+      } catch (error) {
+        console.error('Error al cargar empleados activos:', error)
+      }
+    },
+    formatearTipoServicio(tipo) {
+      const tipos = {
+        'lavado_simple': 'Lavado Simple',
+        'lavado_completo': 'Lavado Completo',
+        'encerado': 'Encerado',
+        'lavado_motor': 'Lavado Motor',
+        'pulido': 'Pulido',
+        'descontaminacion': 'Descontaminación'
+      }
+      return tipos[tipo] || tipo
+    },
+    formatearEstado(estado) {
+      const estados = {
+        'completado': 'Completado',
+        'pendiente': 'Pendiente',
+        'cancelado': 'Cancelado'
+      }
+      return estados[estado] || estado
+    },
+    getEstadoColor(estado) {
+      const colores = {
+        'completado': 'success',
+        'pendiente': 'warning',
+        'cancelado': 'danger'
+      }
+      return colores[estado] || 'secondary'
     }
   }
 }

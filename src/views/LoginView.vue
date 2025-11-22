@@ -116,6 +116,8 @@
 </template>
 
 <script>
+import api from '@/services/api'
+
 export default {
   name: 'LoginView',
   data() {
@@ -137,44 +139,26 @@ export default {
       this.isLoading = true
 
       try {
-        // TODO: Aquí irá la llamada al backend cuando esté listo
-        // Ejemplo de cómo se hará:
-        /*
-        const response = await fetch('http://localhost:5000/api/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            username: this.formData.username,
-            password: this.formData.password
-          })
-        })
+        const data = await api.login(this.formData.username, this.formData.password)
 
-        const data = await response.json()
-
-        if (response.ok) {
+        if (data.token && data.user) {
           // Guardar token en localStorage
           localStorage.setItem('token', data.token)
           localStorage.setItem('user', JSON.stringify(data.user))
-          
+
           // Redirigir al dashboard
           this.$router.push('/dashboard')
         } else {
-          this.errorMessage = data.message || 'Usuario o contraseña incorrectos'
+          this.errorMessage = 'Usuario o contraseña incorrectos'
         }
-        */
-
-        // Por ahora, simulamos un login exitoso después de 1 segundo
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        // Simular login exitoso (TEMPORAL - REMOVER CUANDO HAYA BACKEND)
-        console.log('Login simulado con:', this.formData.username)
-        this.$router.push('/dashboard')
 
       } catch (error) {
         console.error('Error en login:', error)
-        this.errorMessage = 'Error de conexión. Intente nuevamente.'
+        if (error.response && error.response.status === 401) {
+          this.errorMessage = 'Usuario o contraseña incorrectos'
+        } else {
+          this.errorMessage = 'Error de conexión. Intente nuevamente.'
+        }
       } finally {
         this.isLoading = false
       }

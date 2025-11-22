@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import auth, empleados, servicios  # Si creas inventario.py
+from routers import auth, empleados, servicios, inventario, liquidaciones, convenios, tarifas, reportes, dashboard
 
 app = FastAPI(title="Lavadero AL API")
 
@@ -18,7 +18,12 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(empleados.router)
 app.include_router(servicios.router)
-# app.include_router(inventario.router)
+app.include_router(inventario.router)
+app.include_router(liquidaciones.router)
+app.include_router(convenios.router)
+app.include_router(tarifas.router)
+app.include_router(reportes.router)
+app.include_router(dashboard.router)
 
 @app.get("/")
 def root():

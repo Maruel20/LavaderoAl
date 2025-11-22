@@ -33,9 +33,9 @@
             <label class="form-label">Empleado</label>
             <select class="form-select" v-model="filtros.empleado">
               <option value="">Todos los empleados</option>
-              <option value="1">Carlos Gómez</option>
-              <option value="2">Ana Martínez</option>
-              <option value="3">Luis Torres</option>
+              <option v-for="empleado in empleados" :key="empleado.id" :value="empleado.id">
+                {{ empleado.nombre }}
+              </option>
             </select>
           </div>
           <div class="col-md-3">
@@ -180,16 +180,20 @@
               <div class="row g-3">
                 <div class="col-md-6">
                   <label class="form-label">Empleado *</label>
-                  <select class="form-select" required>
+                  <select class="form-select" v-model="nuevaLiquidacion.id_empleado" required>
                     <option value="">Seleccionar empleado...</option>
-                    <option value="1">Carlos Gómez</option>
-                    <option value="2">Ana Martínez</option>
-                    <option value="3">Luis Torres</option>
+                    <option v-for="empleado in empleados" :key="empleado.id" :value="empleado.id">
+                      {{ empleado.nombre }} - {{ empleado.rut }}
+                    </option>
                   </select>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">Período *</label>
-                  <input type="month" class="form-control" required>
+                  <label class="form-label">Fecha Inicio *</label>
+                  <input type="date" class="form-control" v-model="nuevaLiquidacion.periodo_inicio" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Fecha Fin *</label>
+                  <input type="date" class="form-control" v-model="nuevaLiquidacion.periodo_fin" required>
                 </div>
                 <div class="col-12">
                   <div class="alert alert-info">
@@ -213,7 +217,7 @@
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
               Cancelar
             </button>
-            <button type="button" class="btn btn-primary">
+            <button type="button" class="btn btn-primary" @click="calcularLiquidacion">
               <i class="bi bi-save me-2"></i>
               Generar Liquidación
             </button>
@@ -290,10 +294,10 @@
               </div>
             </div>
 
-            <!-- Detalle de servicios (ejemplo) -->
+            <!-- Detalle de servicios -->
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title">Servicios Incluidos (Últimos 5)</h6>
+                <h6 class="card-title">Servicios Incluidos</h6>
                 <div class="table-responsive">
                   <table class="table table-sm table-hover">
                     <thead>
@@ -306,30 +310,18 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>10/01/2025</td>
-                        <td>Lavado Completo</td>
-                        <td>Auto</td>
-                        <td>$25,000</td>
-                        <td class="text-success">$10,000</td>
+                      <tr v-if="liquidacionSeleccionada.servicios && liquidacionSeleccionada.servicios.length > 0"
+                          v-for="servicio in liquidacionSeleccionada.servicios"
+                          :key="servicio.id">
+                        <td>{{ new Date(servicio.fecha).toLocaleDateString('es-CL') }}</td>
+                        <td>{{ servicio.tipo_servicio }}</td>
+                        <td>{{ servicio.tipo_vehiculo }}</td>
+                        <td>${{ servicio.monto?.toLocaleString() }}</td>
+                        <td class="text-success">${{ servicio.comision?.toLocaleString() }}</td>
                       </tr>
-                      <tr>
-                        <td>10/01/2025</td>
-                        <td>Lavado Express</td>
-                        <td>Moto</td>
-                        <td>$15,000</td>
-                        <td class="text-success">$6,000</td>
-                      </tr>
-                      <tr>
-                        <td>09/01/2025</td>
-                        <td>Lavado + Brillado</td>
-                        <td>Camioneta</td>
-                        <td>$35,000</td>
-                        <td class="text-success">$14,000</td>
-                      </tr>
-                      <tr>
+                      <tr v-else>
                         <td colspan="5" class="text-center text-muted">
-                          <small>Mostrando últimos 5 servicios de {{ liquidacionSeleccionada.cantidadServicios }} totales</small>
+                          <small>Cargando servicios...</small>
                         </td>
                       </tr>
                     </tbody>
@@ -363,6 +355,8 @@
 </template>
 
 <script>
+import api from '@/services/api'
+
 export default {
   name: 'LiquidacionesView',
   data() {
@@ -372,45 +366,15 @@ export default {
         empleado: '',
         estado: ''
       },
-      liquidaciones: [
-        {
-          id: 1,
-          empleado: 'Carlos Gómez',
-          periodo: 'Enero 2025',
-          cantidadServicios: 45,
-          totalServicios: 1125000,
-          porcentajeComision: 40,
-          totalComision: 450000,
-          fechaPago: '05/02/2025',
-          estado: 'Pagada',
-          estadoColor: 'success'
-        },
-        {
-          id: 2,
-          empleado: 'Ana Martínez',
-          periodo: 'Enero 2025',
-          cantidadServicios: 38,
-          totalServicios: 950000,
-          porcentajeComision: 40,
-          totalComision: 380000,
-          fechaPago: null,
-          estado: 'Pendiente',
-          estadoColor: 'warning'
-        },
-        {
-          id: 3,
-          empleado: 'Luis Torres',
-          periodo: 'Enero 2025',
-          cantidadServicios: 42,
-          totalServicios: 1050000,
-          porcentajeComision: 50,
-          totalComision: 525000,
-          fechaPago: null,
-          estado: 'Pendiente',
-          estadoColor: 'warning'
-        }
-      ],
-      liquidacionSeleccionada: {}
+      liquidaciones: [],
+      empleados: [],
+      nuevaLiquidacion: {
+        id_empleado: '',
+        periodo_inicio: '',
+        periodo_fin: ''
+      },
+      liquidacionSeleccionada: {},
+      detalleLiquidacion: null
     }
   },
   computed: {
@@ -426,13 +390,130 @@ export default {
         .reduce((total, l) => total + l.totalComision, 0)
     }
   },
+  mounted() {
+    this.cargarLiquidaciones()
+    this.cargarEmpleados()
+  },
   methods: {
-    verDetalle(liquidacion) {
-      this.liquidacionSeleccionada = liquidacion
+    async cargarLiquidaciones() {
+      try {
+        const response = await api.getLiquidaciones()
+        // Mapear los datos del backend al formato del frontend
+        this.liquidaciones = response.map(liq => ({
+          id: liq.id,
+          empleado: liq.nombre_empleado,
+          rut: liq.rut,
+          periodo: `${liq.periodo_inicio} - ${liq.periodo_fin}`,
+          cantidadServicios: liq.total_servicios,
+          totalServicios: liq.monto_total_servicios,
+          porcentajeComision: liq.porcentaje_comision,
+          totalComision: liq.total_comisiones,
+          fechaPago: liq.fecha_pago ? new Date(liq.fecha_pago).toLocaleDateString('es-CL') : null,
+          estado: liq.estado === 'pendiente' ? 'Pendiente' : 'Pagada',
+          estadoColor: liq.estado === 'pendiente' ? 'warning' : 'success',
+          id_empleado: liq.id_empleado
+        }))
+        console.log('Liquidaciones cargadas:', this.liquidaciones.length)
+      } catch (error) {
+        console.error('Error al cargar liquidaciones:', error)
+        alert('Error al cargar las liquidaciones: ' + (error.response?.data?.error || error.message))
+      }
     },
-    marcarComoPagada(liquidacion) {
-      console.log('[v0] Marcando liquidación como pagada:', liquidacion.id)
-      alert('Liquidación marcada como pagada correctamente')
+
+    async cargarEmpleados() {
+      try {
+        this.empleados = await api.getEmpleados()
+        console.log('Empleados cargados:', this.empleados.length)
+      } catch (error) {
+        console.error('Error al cargar empleados:', error)
+        alert('Error al cargar los empleados: ' + (error.response?.data?.error || error.message))
+      }
+    },
+
+    async calcularLiquidacion() {
+      try {
+        // Validar que todos los campos estén completos
+        if (!this.nuevaLiquidacion.id_empleado || !this.nuevaLiquidacion.periodo_inicio || !this.nuevaLiquidacion.periodo_fin) {
+          alert('Por favor complete todos los campos requeridos')
+          return
+        }
+
+        // Llamar al API para calcular la liquidación
+        const response = await api.calcularLiquidacion({
+          periodo_inicio: this.nuevaLiquidacion.periodo_inicio,
+          periodo_fin: this.nuevaLiquidacion.periodo_fin,
+          id_empleado: this.nuevaLiquidacion.id_empleado
+        })
+
+        console.log('Liquidación calculada:', response)
+        alert('Liquidación generada exitosamente')
+
+        // Cerrar el modal
+        const modal = document.getElementById('modalLiquidacion')
+        const bootstrapModal = bootstrap.Modal.getInstance(modal)
+        if (bootstrapModal) {
+          bootstrapModal.hide()
+        }
+
+        // Limpiar el formulario
+        this.nuevaLiquidacion = {
+          id_empleado: '',
+          periodo_inicio: '',
+          periodo_fin: ''
+        }
+
+        // Recargar las liquidaciones
+        await this.cargarLiquidaciones()
+      } catch (error) {
+        console.error('Error al calcular liquidación:', error)
+        alert('Error al generar la liquidación: ' + (error.response?.data?.error || error.message))
+      }
+    },
+
+    async marcarComoPagada(liquidacion) {
+      try {
+        if (!confirm('¿Está seguro de marcar esta liquidación como pagada?')) {
+          return
+        }
+
+        await api.marcarLiquidacionPagada(liquidacion.id)
+        console.log('Liquidación marcada como pagada:', liquidacion.id)
+        alert('Liquidación marcada como pagada correctamente')
+
+        // Cerrar el modal de detalle si está abierto
+        const modal = document.getElementById('modalDetalleLiquidacion')
+        const bootstrapModal = bootstrap.Modal.getInstance(modal)
+        if (bootstrapModal) {
+          bootstrapModal.hide()
+        }
+
+        // Recargar las liquidaciones
+        await this.cargarLiquidaciones()
+      } catch (error) {
+        console.error('Error al marcar liquidación como pagada:', error)
+        alert('Error al marcar la liquidación como pagada: ' + (error.response?.data?.error || error.message))
+      }
+    },
+
+    async verDetalle(liquidacion) {
+      try {
+        this.liquidacionSeleccionada = liquidacion
+
+        // Obtener el detalle completo de la liquidación
+        this.detalleLiquidacion = await api.getLiquidacionDetalle(liquidacion.id)
+        console.log('Detalle de liquidación:', this.detalleLiquidacion)
+
+        // Actualizar los datos de la liquidación seleccionada con el detalle
+        this.liquidacionSeleccionada = {
+          ...liquidacion,
+          servicios: this.detalleLiquidacion.servicios || []
+        }
+      } catch (error) {
+        console.error('Error al cargar detalle de liquidación:', error)
+        alert('Error al cargar el detalle de la liquidación: ' + (error.response?.data?.error || error.message))
+        // Aún así mostrar el modal con la información básica
+        this.liquidacionSeleccionada = liquidacion
+      }
     }
   }
 }
