@@ -440,11 +440,11 @@ export default {
       try {
         // Mapear los datos para el movimiento de entrada
         const movimientoData = {
-          insumo_id: parseInt(this.movimientoForm.insumoId),
+          id_insumo: parseInt(this.movimientoForm.insumoId),
           tipo_movimiento: 'entrada',
           cantidad: parseFloat(this.movimientoForm.cantidad),
           motivo: this.movimientoForm.motivo,
-          observaciones: this.movimientoForm.observaciones
+          usuario: 'admin'
         }
 
         await api.registrarMovimiento(movimientoData)

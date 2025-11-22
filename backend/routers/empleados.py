@@ -9,8 +9,8 @@ def get_empleados():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM empleados WHERE estado = 'activo'")
-    cursor.close()
     empleados = cursor.fetchall()
+    cursor.close()
     conn.close()
     return empleados
 
@@ -25,5 +25,6 @@ def create_empleado(empleado: EmpleadoCreate):
     values = (empleado.nombre, empleado.rut, empleado.telefono, empleado.email, empleado.porcentaje_comision)
     cursor.execute(query, values)
     conn.commit()
+    cursor.close()
     conn.close()
     return {"message": "Empleado creado correctamente"}
