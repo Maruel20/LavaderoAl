@@ -4,7 +4,7 @@ from schemas import TarifaUpdate
 
 router = APIRouter()
 
-@router.get("/tarifas")
+@router.get("/api/tarifas")
 def get_tarifas():
     """Obtener todas las tarifas"""
     conn = get_db_connection()
@@ -26,7 +26,7 @@ def get_tarifas():
         cursor.close()
         conn.close()
 
-@router.get("/tarifas/{tipo_vehiculo}/{tipo_servicio}")
+@router.get("/api/tarifas/{tipo_vehiculo}/{tipo_servicio}")
 def get_tarifa_especifica(tipo_vehiculo: str, tipo_servicio: str):
     """Obtener una tarifa específica por tipo de vehículo y servicio"""
     conn = get_db_connection()
@@ -55,7 +55,7 @@ def get_tarifa_especifica(tipo_vehiculo: str, tipo_servicio: str):
         cursor.close()
         conn.close()
 
-@router.put("/tarifas/{tipo_vehiculo}/{tipo_servicio}")
+@router.put("/api/tarifas/{tipo_vehiculo}/{tipo_servicio}")
 def update_tarifa(tipo_vehiculo: str, tipo_servicio: str, tarifa: TarifaUpdate):
     """Actualizar el precio de una tarifa"""
     conn = get_db_connection()
@@ -87,7 +87,7 @@ def update_tarifa(tipo_vehiculo: str, tipo_servicio: str, tarifa: TarifaUpdate):
         cursor.close()
         conn.close()
 
-@router.get("/tarifas/vehiculo/{tipo_vehiculo}")
+@router.get("/api/tarifas/vehiculo/{tipo_vehiculo}")
 def get_tarifas_vehiculo(tipo_vehiculo: str):
     """Obtener todas las tarifas de un tipo de vehículo"""
     conn = get_db_connection()
@@ -110,7 +110,7 @@ def get_tarifas_vehiculo(tipo_vehiculo: str):
         cursor.close()
         conn.close()
 
-@router.get("/tarifas/tipos/vehiculos")
+@router.get("/api/tarifas/tipos/vehiculos")
 def get_tipos_vehiculos():
     """Obtener todos los tipos de vehículos disponibles"""
     conn = get_db_connection()
@@ -133,7 +133,7 @@ def get_tipos_vehiculos():
         cursor.close()
         conn.close()
 
-@router.get("/tarifas/tipos/servicios")
+@router.get("/api/tarifas/tipos/servicios")
 def get_tipos_servicios():
     """Obtener todos los tipos de servicios disponibles"""
     conn = get_db_connection()

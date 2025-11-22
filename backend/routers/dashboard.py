@@ -3,7 +3,7 @@ from database import get_db_connection
 
 router = APIRouter()
 
-@router.get("/dashboard/metricas")
+@router.get("/api/dashboard/metricas")
 def get_metricas_dashboard():
     """Obtener métricas principales del dashboard"""
     conn = get_db_connection()
@@ -100,7 +100,7 @@ def get_metricas_dashboard():
         cursor.close()
         conn.close()
 
-@router.get("/dashboard/servicios-recientes")
+@router.get("/api/dashboard/servicios-recientes")
 def get_servicios_recientes(limit: int = 10):
     """Obtener los servicios más recientes"""
     conn = get_db_connection()
@@ -136,7 +136,7 @@ def get_servicios_recientes(limit: int = 10):
         cursor.close()
         conn.close()
 
-@router.get("/dashboard/alertas-inventario")
+@router.get("/api/dashboard/alertas-inventario")
 def get_alertas_inventario():
     """Obtener alertas de inventario con stock bajo"""
     conn = get_db_connection()
@@ -171,7 +171,7 @@ def get_alertas_inventario():
         cursor.close()
         conn.close()
 
-@router.get("/dashboard/empleados-top")
+@router.get("/api/dashboard/empleados-top")
 def get_empleados_top(limit: int = 5):
     """Obtener top empleados del mes por ventas"""
     conn = get_db_connection()
@@ -206,7 +206,7 @@ def get_empleados_top(limit: int = 5):
         cursor.close()
         conn.close()
 
-@router.get("/dashboard/grafico-servicios")
+@router.get("/api/dashboard/grafico-servicios")
 def get_grafico_servicios(dias: int = 7):
     """Obtener datos para gráfico de servicios de los últimos N días"""
     conn = get_db_connection()
@@ -234,7 +234,7 @@ def get_grafico_servicios(dias: int = 7):
         cursor.close()
         conn.close()
 
-@router.get("/dashboard/servicios-por-tipo")
+@router.get("/api/dashboard/servicios-por-tipo")
 def get_servicios_por_tipo():
     """Obtener distribución de servicios por tipo del mes actual"""
     conn = get_db_connection()
@@ -263,7 +263,7 @@ def get_servicios_por_tipo():
         cursor.close()
         conn.close()
 
-@router.get("/dashboard/liquidaciones-pendientes")
+@router.get("/api/dashboard/liquidaciones-pendientes")
 def get_liquidaciones_pendientes():
     """Obtener liquidaciones pendientes de pago"""
     conn = get_db_connection()

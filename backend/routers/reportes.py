@@ -4,7 +4,7 @@ from typing import Optional
 
 router = APIRouter()
 
-@router.get("/reportes/general")
+@router.get("/api/reportes/general")
 def get_reporte_general(fecha_inicio: Optional[str] = None, fecha_fin: Optional[str] = None):
     """Obtener reporte general de ingresos y servicios"""
     conn = get_db_connection()
@@ -74,7 +74,7 @@ def get_reporte_general(fecha_inicio: Optional[str] = None, fecha_fin: Optional[
         cursor.close()
         conn.close()
 
-@router.get("/reportes/empleados")
+@router.get("/api/reportes/empleados")
 def get_reporte_empleados(fecha_inicio: Optional[str] = None, fecha_fin: Optional[str] = None):
     """Obtener reporte de rendimiento por empleado"""
     conn = get_db_connection()
@@ -116,7 +116,7 @@ def get_reporte_empleados(fecha_inicio: Optional[str] = None, fecha_fin: Optiona
         cursor.close()
         conn.close()
 
-@router.get("/reportes/servicios-diarios")
+@router.get("/api/reportes/servicios-diarios")
 def get_reporte_servicios_diarios(dias: int = 30):
     """Obtener servicios e ingresos diarios de los últimos N días"""
     conn = get_db_connection()
@@ -145,7 +145,7 @@ def get_reporte_servicios_diarios(dias: int = 30):
         cursor.close()
         conn.close()
 
-@router.get("/reportes/convenios")
+@router.get("/api/reportes/convenios")
 def get_reporte_convenios(fecha_inicio: Optional[str] = None, fecha_fin: Optional[str] = None):
     """Obtener reporte de servicios por convenio"""
     conn = get_db_connection()
@@ -188,7 +188,7 @@ def get_reporte_convenios(fecha_inicio: Optional[str] = None, fecha_fin: Optiona
         cursor.close()
         conn.close()
 
-@router.get("/reportes/inventario")
+@router.get("/api/reportes/inventario")
 def get_reporte_inventario():
     """Obtener reporte de estado del inventario"""
     conn = get_db_connection()
@@ -253,7 +253,7 @@ def get_reporte_inventario():
         cursor.close()
         conn.close()
 
-@router.get("/reportes/financiero")
+@router.get("/api/reportes/financiero")
 def get_reporte_financiero(anio: Optional[int] = None):
     """Obtener reporte financiero mensual del año"""
     conn = get_db_connection()
