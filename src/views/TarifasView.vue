@@ -106,6 +106,8 @@
 </template>
 
 <script>
+import api from '@/services/api'
+
 export default {
   name: 'TarifasView',
   data() {
@@ -157,45 +159,89 @@ export default {
           lavadoPremium: 35000
         }
       ],
-      tiposServicio: [
-        {
-          id: 1,
-          nombre: 'Enjuague',
-          descripcion: 'Lavado rápido con agua a presión',
-          duracion: '10-15 min'
-        },
-        {
-          id: 2,
-          nombre: 'Lavado Básico',
-          descripcion: 'Lavado exterior con jabón y secado',
-          duracion: '20-30 min'
-        },
-        {
-          id: 3,
-          nombre: 'Lavado Completo',
-          descripcion: 'Exterior, interior, aspirado y limpieza de vidrios',
-          duracion: '40-50 min'
-        },
-        {
-          id: 4,
-          nombre: 'Lavado + Brillado',
-          descripcion: 'Lavado completo + cera y brillo',
-          duracion: '60-70 min'
-        },
-        {
-          id: 5,
-          nombre: 'Lavado Premium',
-          descripcion: 'Servicio completo + pulido + protección',
-          duracion: '90-120 min'
-        }
-      ]
+      tiposServicio: []
     }
   },
+  mounted() {
+    this.cargarTiposServicio()
+  },
   methods: {
+    async cargarTiposServicio() {
+      try {
+        const data = await api.getTiposServicios()
+        this.tiposServicio = data.map(s => ({
+          id: s.tipo_servicio,
+          nombre: this.formatearNombreServicio(s.tipo_servicio),
+          descripcion: s.descripcion || '',
+          duracion: this.estimarDuracion(s.tipo_servicio)
+        }))
+      } catch (error) {
+        console.error('Error al cargar tipos de servicio:', error)
+        this.tiposServicio = [
+          {
+            id: 1,
+            nombre: 'Lavado Simple',
+            descripcion: 'Lavado exterior básico',
+            duracion: '15-20 min'
+          },
+          {
+            id: 2,
+            nombre: 'Lavado Completo',
+            descripcion: 'Exterior, interior, aspirado y limpieza de vidrios',
+            duracion: '40-50 min'
+          },
+          {
+            id: 3,
+            nombre: 'Encerado',
+            descripcion: 'Aplicación de cera y brillo',
+            duracion: '30-40 min'
+          },
+          {
+            id: 4,
+            nombre: 'Lavado Motor',
+            descripcion: 'Limpieza del compartimento del motor',
+            duracion: '20-30 min'
+          },
+          {
+            id: 5,
+            nombre: 'Pulido',
+            descripcion: 'Pulido profesional de la pintura',
+            duracion: '90-120 min'
+          },
+          {
+            id: 6,
+            nombre: 'Descontaminación',
+            descripcion: 'Descontaminación de pintura',
+            duracion: '60-90 min'
+          }
+        ]
+      }
+    },
+    formatearNombreServicio(tipo) {
+      const nombres = {
+        'lavado_simple': 'Lavado Simple',
+        'lavado_completo': 'Lavado Completo',
+        'encerado': 'Encerado',
+        'lavado_motor': 'Lavado Motor',
+        'pulido': 'Pulido',
+        'descontaminacion': 'Descontaminación'
+      }
+      return nombres[tipo] || tipo
+    },
+    estimarDuracion(tipo) {
+      const duraciones = {
+        'lavado_simple': '15-20 min',
+        'lavado_completo': '40-50 min',
+        'encerado': '30-40 min',
+        'lavado_motor': '20-30 min',
+        'pulido': '90-120 min',
+        'descontaminacion': '60-90 min'
+      }
+      return duraciones[tipo] || '30 min'
+    },
     guardarCambios(tarifa) {
-      // TODO: Cuando esté el backend, enviar los cambios al servidor
-      console.log('[v0] Guardando cambios de tarifa:', tarifa)
-      alert('Tarifa actualizada correctamente')
+      alert('Tarifa actualizada correctamente (vista actual usa tarifas hardcoded)')
+      console.log('Guardando cambios de tarifa:', tarifa)
     }
   }
 }

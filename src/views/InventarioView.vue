@@ -301,6 +301,8 @@
 </template>
 
 <script>
+import api from '@/services/api'
+
 export default {
   name: 'InventarioView',
   data() {
@@ -309,52 +311,7 @@ export default {
       filtroCategoria: '',
       filtroEstado: '',
       modoEdicion: false,
-      insumos: [
-        {
-          id: 1,
-          nombre: 'Shampoo Premium',
-          categoria: 'Limpieza',
-          stock: 2,
-          stockMinimo: 5,
-          unidad: 'L',
-          precioUnitario: 15000,
-          estadoTexto: 'Stock Bajo',
-          estadoColor: 'warning'
-        },
-        {
-          id: 2,
-          nombre: 'Cera Líquida',
-          categoria: 'Encerado',
-          stock: 1,
-          stockMinimo: 3,
-          unidad: 'L',
-          precioUnitario: 25000,
-          estadoTexto: 'Stock Crítico',
-          estadoColor: 'danger'
-        },
-        {
-          id: 3,
-          nombre: 'Toallas Microfibra',
-          categoria: 'Herramientas',
-          stock: 5,
-          stockMinimo: 10,
-          unidad: 'unidad',
-          precioUnitario: 3000,
-          estadoTexto: 'Stock Bajo',
-          estadoColor: 'warning'
-        },
-        {
-          id: 4,
-          nombre: 'Limpiador de Llantas',
-          categoria: 'Limpieza',
-          stock: 15,
-          stockMinimo: 5,
-          unidad: 'L',
-          precioUnitario: 12000,
-          estadoTexto: 'Stock Óptimo',
-          estadoColor: 'success'
-        }
-      ],
+      insumos: [],
       insumoForm: {
         id: null,
         nombre: '',
@@ -373,6 +330,9 @@ export default {
       }
     }
   },
+  mounted() {
+    this.cargarInventario()
+  },
   computed: {
     insumosStockBajo() {
       return this.insumos.filter(i => i.stock <= i.stockMinimo)
@@ -387,6 +347,42 @@ export default {
     }
   },
   methods: {
+    async cargarInventario() {
+      try {
+        const response = await api.getInventario()
+        // Mapear los datos de snake_case (API) a camelCase (frontend)
+        this.insumos = response.data.map(insumo => ({
+          id: insumo.id,
+          nombre: insumo.nombre,
+          categoria: insumo.categoria,
+          stock: insumo.stock,
+          stockMinimo: insumo.stock_minimo,
+          unidad: insumo.unidad,
+          precioUnitario: insumo.precio_unitario,
+          descripcion: insumo.descripcion,
+          estadoTexto: this.mapearEstadoTexto(insumo.estado_stock),
+          estadoColor: this.mapearEstadoColor(insumo.estado_stock)
+        }))
+      } catch (error) {
+        console.error('Error al cargar inventario:', error)
+      }
+    },
+    mapearEstadoTexto(estadoStock) {
+      const mapeo = {
+        'optimo': 'Stock Óptimo',
+        'bajo': 'Stock Bajo',
+        'critico': 'Stock Crítico'
+      }
+      return mapeo[estadoStock] || 'Desconocido'
+    },
+    mapearEstadoColor(estadoStock) {
+      const mapeo = {
+        'optimo': 'success',
+        'bajo': 'warning',
+        'critico': 'danger'
+      }
+      return mapeo[estadoStock] || 'secondary'
+    },
     seleccionarInsumo(insumo) {
       this.movimientoForm.insumoId = insumo.id
     },
@@ -403,15 +399,66 @@ export default {
         descripcion: insumo.descripcion || ''
       }
     },
-    guardarInsumo() {
-      console.log('[v0] Guardando insumo:', this.insumoForm)
-      alert(this.modoEdicion ? 'Insumo actualizado correctamente' : 'Insumo creado correctamente')
-      this.limpiarFormInsumo()
+    async guardarInsumo() {
+      try {
+        // Mapear los datos de camelCase (frontend) a snake_case (API)
+        const insumoData = {
+          nombre: this.insumoForm.nombre,
+          categoria: this.insumoForm.categoria,
+          stock: parseFloat(this.insumoForm.stock),
+          stock_minimo: parseFloat(this.insumoForm.stockMinimo),
+          unidad: this.insumoForm.unidad,
+          precio_unitario: parseFloat(this.insumoForm.precioUnitario),
+          descripcion: this.insumoForm.descripcion
+        }
+
+        if (this.modoEdicion) {
+          // TODO: Implementar api.updateInsumo cuando esté disponible
+          console.log('Actualizar insumo:', insumoData)
+          alert('Función de actualización pendiente de implementar')
+        } else {
+          await api.createInsumo(insumoData)
+          alert('Insumo creado correctamente')
+          // Recargar el inventario después de crear
+          await this.cargarInventario()
+        }
+
+        this.limpiarFormInsumo()
+        // Cerrar el modal
+        const modal = document.getElementById('modalInsumo')
+        const bsModal = bootstrap.Modal.getInstance(modal)
+        if (bsModal) bsModal.hide()
+      } catch (error) {
+        console.error('Error al guardar insumo:', error)
+        alert('Error al guardar el insumo. Por favor, intenta nuevamente.')
+      }
     },
-    registrarMovimiento() {
-      console.log('[v0] Registrando movimiento:', this.movimientoForm)
-      alert('Movimiento registrado correctamente')
-      this.limpiarFormMovimiento()
+    async registrarMovimiento() {
+      try {
+        // Mapear los datos para el movimiento de entrada
+        const movimientoData = {
+          insumo_id: parseInt(this.movimientoForm.insumoId),
+          tipo_movimiento: 'entrada',
+          cantidad: parseFloat(this.movimientoForm.cantidad),
+          motivo: this.movimientoForm.motivo,
+          observaciones: this.movimientoForm.observaciones
+        }
+
+        await api.registrarMovimiento(movimientoData)
+        alert('Movimiento registrado correctamente')
+
+        // Recargar el inventario después de registrar la entrada
+        await this.cargarInventario()
+
+        this.limpiarFormMovimiento()
+        // Cerrar el modal
+        const modal = document.getElementById('modalMovimiento')
+        const bsModal = bootstrap.Modal.getInstance(modal)
+        if (bsModal) bsModal.hide()
+      } catch (error) {
+        console.error('Error al registrar movimiento:', error)
+        alert('Error al registrar el movimiento. Por favor, intenta nuevamente.')
+      }
     },
     limpiarFormInsumo() {
       this.modoEdicion = false

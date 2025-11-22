@@ -76,8 +76,8 @@
         
         <div class="d-flex align-items-center text-white">
           <i class="bi bi-person-circle me-2"></i>
-          <span class="me-3">Admin</span>
-          <button class="btn btn-outline-light btn-sm">
+          <span class="me-3">{{ nombreUsuario }}</span>
+          <button class="btn btn-outline-light btn-sm" @click="logout">
             <i class="bi bi-box-arrow-right"></i>
             Salir
           </button>
@@ -89,7 +89,36 @@
 
 <script>
 export default {
-  name: 'Navbar'
+  name: 'Navbar',
+  data() {
+    return {
+      nombreUsuario: 'Usuario'
+    }
+  },
+  mounted() {
+    this.cargarUsuario()
+  },
+  methods: {
+    cargarUsuario() {
+      try {
+        const userStr = localStorage.getItem('user')
+        if (userStr) {
+          const user = JSON.parse(userStr)
+          this.nombreUsuario = user.username || user.nombre || 'Usuario'
+        }
+      } catch (error) {
+        console.error('Error al cargar usuario:', error)
+        this.nombreUsuario = 'Usuario'
+      }
+    },
+    logout() {
+      if (confirm('¿Está seguro de que desea cerrar sesión?')) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        this.$router.push('/login')
+      }
+    }
+  }
 }
 </script>
 
