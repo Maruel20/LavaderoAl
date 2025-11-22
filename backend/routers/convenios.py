@@ -4,7 +4,7 @@ from schemas import ConvenioCreate, ConvenioUpdate, VehiculoConvenioCreate
 
 router = APIRouter()
 
-@router.get("/convenios")
+@router.get("/api/convenios")
 def get_convenios():
     """Obtener todos los convenios"""
     conn = get_db_connection()
@@ -30,7 +30,7 @@ def get_convenios():
         cursor.close()
         conn.close()
 
-@router.get("/convenios/{id_convenio}")
+@router.get("/api/convenios/{id_convenio}")
 def get_convenio_detalle(id_convenio: int):
     """Obtener detalle de un convenio específico"""
     conn = get_db_connection()
@@ -64,7 +64,7 @@ def get_convenio_detalle(id_convenio: int):
         cursor.close()
         conn.close()
 
-@router.post("/convenios")
+@router.post("/api/convenios")
 def create_convenio(convenio: ConvenioCreate):
     """Crear un nuevo convenio"""
     conn = get_db_connection()
@@ -104,7 +104,7 @@ def create_convenio(convenio: ConvenioCreate):
         cursor.close()
         conn.close()
 
-@router.put("/convenios/{id_convenio}")
+@router.put("/api/convenios/{id_convenio}")
 def update_convenio(id_convenio: int, convenio: ConvenioUpdate):
     """Actualizar un convenio existente"""
     conn = get_db_connection()
@@ -172,7 +172,7 @@ def update_convenio(id_convenio: int, convenio: ConvenioUpdate):
         cursor.close()
         conn.close()
 
-@router.post("/convenios/{id_convenio}/vehiculos")
+@router.post("/api/convenios/{id_convenio}/vehiculos")
 def add_vehiculo_convenio(id_convenio: int, vehiculo: VehiculoConvenioCreate):
     """Agregar un vehículo a un convenio"""
     conn = get_db_connection()
@@ -223,7 +223,7 @@ def add_vehiculo_convenio(id_convenio: int, vehiculo: VehiculoConvenioCreate):
         cursor.close()
         conn.close()
 
-@router.get("/convenios/{id_convenio}/vehiculos")
+@router.get("/api/convenios/{id_convenio}/vehiculos")
 def get_vehiculos_convenio(id_convenio: int):
     """Obtener todos los vehículos de un convenio"""
     conn = get_db_connection()
@@ -245,7 +245,7 @@ def get_vehiculos_convenio(id_convenio: int):
         cursor.close()
         conn.close()
 
-@router.delete("/convenios/vehiculos/{id_vehiculo}")
+@router.delete("/api/convenios/vehiculos/{id_vehiculo}")
 def remove_vehiculo_convenio(id_vehiculo: int):
     """Desactivar un vehículo de un convenio"""
     conn = get_db_connection()
@@ -275,7 +275,7 @@ def remove_vehiculo_convenio(id_vehiculo: int):
         cursor.close()
         conn.close()
 
-@router.get("/convenios/patente/{patente}")
+@router.get("/api/convenios/patente/{patente}")
 def verificar_convenio_patente(patente: str):
     """Verificar si una patente tiene convenio activo"""
     conn = get_db_connection()

@@ -9,6 +9,7 @@ def get_empleados():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM empleados WHERE estado = 'activo'")
+    cursor.close()
     empleados = cursor.fetchall()
     conn.close()
     return empleados

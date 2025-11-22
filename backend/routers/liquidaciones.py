@@ -5,7 +5,7 @@ from datetime import datetime
 
 router = APIRouter()
 
-@router.get("/liquidaciones")
+@router.get("/api/liquidaciones")
 def get_liquidaciones():
     """Obtener todas las liquidaciones"""
     conn = get_db_connection()
@@ -31,7 +31,7 @@ def get_liquidaciones():
         cursor.close()
         conn.close()
 
-@router.get("/liquidaciones/{id_liquidacion}")
+@router.get("/api/liquidaciones/{id_liquidacion}")
 def get_liquidacion_detalle(id_liquidacion: int):
     """Obtener detalle de una liquidación específica"""
     conn = get_db_connection()
@@ -86,7 +86,7 @@ def get_liquidacion_detalle(id_liquidacion: int):
         cursor.close()
         conn.close()
 
-@router.post("/liquidaciones/calcular")
+@router.post("/api/liquidaciones/calcular")
 def calcular_liquidacion(liquidacion: LiquidacionCreate):
     """Calcular y crear una nueva liquidación"""
     conn = get_db_connection()
@@ -182,7 +182,7 @@ def calcular_liquidacion(liquidacion: LiquidacionCreate):
         cursor.close()
         conn.close()
 
-@router.put("/liquidaciones/{id_liquidacion}/pagar")
+@router.put("/api/liquidaciones/{id_liquidacion}/pagar")
 def marcar_liquidacion_pagada(id_liquidacion: int):
     """Marcar una liquidación como pagada"""
     conn = get_db_connection()
@@ -215,7 +215,7 @@ def marcar_liquidacion_pagada(id_liquidacion: int):
         cursor.close()
         conn.close()
 
-@router.get("/liquidaciones/empleado/{id_empleado}")
+@router.get("/api/liquidaciones/empleado/{id_empleado}")
 def get_liquidaciones_empleado(id_empleado: int):
     """Obtener liquidaciones de un empleado específico"""
     conn = get_db_connection()

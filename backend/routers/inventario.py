@@ -4,7 +4,7 @@ from schemas import InsumoCreate, InsumoUpdate, MovimientoInventario
 
 router = APIRouter()
 
-@router.get("/inventario")
+@router.get("/api/inventario")
 def get_inventario():
     """Obtener todos los insumos del inventario"""
     conn = get_db_connection()
@@ -32,7 +32,7 @@ def get_inventario():
         cursor.close()
         conn.close()
 
-@router.post("/inventario")
+@router.post("/api/inventario")
 def create_insumo(insumo: InsumoCreate):
     """Crear un nuevo insumo en el inventario"""
     conn = get_db_connection()
@@ -75,7 +75,7 @@ def create_insumo(insumo: InsumoCreate):
         cursor.close()
         conn.close()
 
-@router.put("/inventario/{id_insumo}")
+@router.put("/api/inventario/{id_insumo}")
 def update_insumo(id_insumo: int, insumo: InsumoUpdate):
     """Actualizar un insumo existente"""
     conn = get_db_connection()
@@ -128,7 +128,7 @@ def update_insumo(id_insumo: int, insumo: InsumoUpdate):
         cursor.close()
         conn.close()
 
-@router.post("/inventario/movimiento")
+@router.post("/api/inventario/movimiento")
 def registrar_movimiento(movimiento: MovimientoInventario):
     """Registrar un movimiento de inventario (entrada/salida/ajuste)"""
     conn = get_db_connection()
@@ -193,7 +193,7 @@ def registrar_movimiento(movimiento: MovimientoInventario):
         cursor.close()
         conn.close()
 
-@router.get("/inventario/movimientos/{id_insumo}")
+@router.get("/api/inventario/movimientos/{id_insumo}")
 def get_movimientos_insumo(id_insumo: int):
     """Obtener historial de movimientos de un insumo"""
     conn = get_db_connection()
@@ -216,7 +216,7 @@ def get_movimientos_insumo(id_insumo: int):
         cursor.close()
         conn.close()
 
-@router.get("/inventario/alertas")
+@router.get("/api/inventario/alertas")
 def get_alertas_inventario():
     """Obtener insumos con stock bajo o crítico"""
     conn = get_db_connection()
