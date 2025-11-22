@@ -355,6 +355,7 @@
 </template>
 
 <script>
+import * as bootstrap from 'bootstrap'
 import api from '@/services/api'
 
 export default {

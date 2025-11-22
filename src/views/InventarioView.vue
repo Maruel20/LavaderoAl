@@ -301,6 +301,7 @@
 </template>
 
 <script>
+import * as bootstrap from 'bootstrap'
 import api from '@/services/api'
 
 export default {
@@ -350,8 +351,10 @@ export default {
     async cargarInventario() {
       try {
         const response = await api.getInventario()
+        const data = Array.isArray(response) ? response : response?.data || []
+
         // Mapear los datos de snake_case (API) a camelCase (frontend)
-        this.insumos = response.data.map(insumo => ({
+        this.insumos = data.map(insumo => ({
           id: insumo.id,
           nombre: insumo.nombre,
           categoria: insumo.categoria,

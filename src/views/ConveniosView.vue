@@ -366,6 +366,7 @@
 </template>
 
 <script>
+import * as bootstrap from 'bootstrap'
 import api from '@/services/api'
 
 export default {
@@ -420,7 +421,9 @@ export default {
       try {
         this.cargando = true
         const response = await api.getConvenios()
-        this.convenios = response.data.map(convenio => ({
+        const data = Array.isArray(response) ? response : response?.data || []
+
+        this.convenios = data.map(convenio => ({
           ...convenio,
           cliente: convenio.nombre_empresa,
           rut: convenio.rut_empresa,
@@ -461,7 +464,7 @@ export default {
 
           // Si hay vehículos temporales, agregarlos al convenio
           if (this.vehiculosTemp.length > 0 && this.vehiculosTemp[0].patente) {
-            const convenioId = response.data.id
+            const convenioId = response.id
             for (const vehiculo of this.vehiculosTemp) {
               if (vehiculo.patente) {
                 await this.agregarVehiculoConvenio(convenioId, vehiculo)
@@ -499,7 +502,7 @@ export default {
           color: vehiculo.color
         }
 
-        await api.addVehiculoConvenio(vehiculoData)
+        await api.addVehiculoConvenio(id_convenio, vehiculoData)
       } catch (error) {
         console.error('Error al agregar vehículo al convenio:', error)
         throw error
@@ -512,7 +515,9 @@ export default {
         this.convenioSeleccionado = convenio
 
         const response = await api.getVehiculosConvenio(convenio.id)
-        this.vehiculosSeleccionados = response.data.map(vehiculo => ({
+        const data = Array.isArray(response) ? response : response?.data || []
+
+        this.vehiculosSeleccionados = data.map(vehiculo => ({
           ...vehiculo,
           tipo: vehiculo.tipo_vehiculo,
           servicios: vehiculo.servicios_realizados || 0
