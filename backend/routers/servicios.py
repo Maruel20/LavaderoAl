@@ -10,13 +10,14 @@ def get_servicios():
     cursor = conn.cursor(dictionary=True)
     # Hacemos JOIN para traer el nombre del empleado
     query = """
-        SELECT s.*, e.nombre as nombre_empleado 
+        SELECT s.*, e.nombre as nombre_empleado
         FROM servicios s
         LEFT JOIN empleados e ON s.id_empleado = e.id
         ORDER BY s.fecha DESC
     """
     cursor.execute(query)
     servicios = cursor.fetchall()
+    cursor.close()
     conn.close()
     return servicios
 
@@ -46,6 +47,7 @@ def create_servicio(data: ServicioCreate):
     
     cursor.execute(query, values)
     conn.commit()
+    cursor.close()
     conn.close()
-    
+
     return {"success": True, "message": "Servicio registrado"}
