@@ -1,38 +1,70 @@
-# LavaderoAL
+# Lavadero AL - Sistema de Gestión
 
-This template should help get you started developing with Vue 3 in Vite.
+Sistema completo de gestión para lavadero de autos con control de servicios, empleados, inventario, liquidaciones, convenios y reportes.
 
-## Recommended IDE Setup
+## Tecnologías Utilizadas
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+### Backend
+- **FastAPI** - Framework web moderno y rápido para Python
+- **MySQL** - Base de datos relacional
+- **JWT** - Autenticación con tokens
+- **Bcrypt** - Hash seguro de contraseñas
+- **Pydantic** - Validación de datos
 
-## Recommended Browser Setup
+### Frontend
+- **Vue 3** - Framework JavaScript progresivo
+- **Vue Router** - Enrutamiento de páginas
+- **Pinia** - Gestión de estado
+- **Bootstrap 5** - Framework CSS
+- **Axios** - Cliente HTTP
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+## Características Principales
 
-## Customize configuration
+✓ Autenticación con JWT
+✓ Gestión de servicios de lavado
+✓ Control de empleados y comisiones
+✓ Sistema de inventario con alertas
+✓ Liquidaciones de empleados
+✓ Convenios con empresas
+✓ Gestión de tarifas
+✓ Dashboard con métricas
+✓ Reportes detallados
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## Instalación Rápida
 
-## Project Setup
+### 1. Base de Datos
+\`\`\`bash
+mysql -u root -p < backend/schema.sql
+\`\`\`
 
-```sh
+### 2. Backend
+\`\`\`bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
+pip install -r requirements.txt
+cp .env.example .env      # Editar con tus credenciales
+./start_server.sh         # Linux/Mac
+start_server.bat          # Windows
+\`\`\`
+
+### 3. Frontend
+\`\`\`bash
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
 npm run dev
-```
+\`\`\`
 
-### Compile and Minify for Production
+## Acceso al Sistema
 
-```sh
-npm run build
-```
+- Frontend: http://localhost:5173
+- API: http://localhost:8000
+- Docs: http://localhost:8000/docs
+
+**Usuario de prueba:**
+- Usuario: admin
+- Contraseña: admin123
+
+---
+
+**Versión:** 1.0.0
