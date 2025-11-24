@@ -1,11 +1,13 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from database import get_db_connection
+from dependencies import get_current_user, require_role
+from typing import Dict
 from schemas import TarifaUpdate
 
 router = APIRouter()
 
 @router.get("/api/tarifas")
-def get_tarifas():
+def get_tarifas(current_user: Dict = Depends(get_current_user)):
     """Obtener todas las tarifas"""
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -56,7 +58,7 @@ def get_tarifa_especifica(tipo_vehiculo: str, tipo_servicio: str):
         conn.close()
 
 @router.put("/api/tarifas/{tipo_vehiculo}/{tipo_servicio}")
-def update_tarifa(tipo_vehiculo: str, tipo_servicio: str, tarifa: TarifaUpdate):
+def update_tarifa(tipo_vehiculo: str, tipo_servicio: str, tarifa: TarifaUpdate, current_user: Dict = Depends(get_current_user)):
     """Actualizar el precio de una tarifa"""
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -111,7 +113,7 @@ def get_tarifas_vehiculo(tipo_vehiculo: str):
         conn.close()
 
 @router.get("/api/tarifas/tipos/vehiculos")
-def get_tipos_vehiculos():
+def get_tipos_vehiculos(current_user: Dict = Depends(get_current_user)):
     """Obtener todos los tipos de vehículos disponibles"""
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -134,7 +136,7 @@ def get_tipos_vehiculos():
         conn.close()
 
 @router.get("/api/tarifas/tipos/servicios")
-def get_tipos_servicios():
+def get_tipos_servicios(current_user: Dict = Depends(get_current_user)):
     """Obtener todos los tipos de servicios disponibles"""
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)

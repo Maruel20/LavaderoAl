@@ -1,11 +1,13 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from database import get_db_connection
+from dependencies import get_current_user, require_role
+from typing import Dict
 from schemas import InsumoCreate, InsumoUpdate, MovimientoInventario
 
 router = APIRouter()
 
 @router.get("/api/inventario")
-def get_inventario():
+def get_inventario(current_user: Dict = Depends(get_current_user)):
     """Obtener todos los insumos del inventario"""
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -33,7 +35,7 @@ def get_inventario():
         conn.close()
 
 @router.post("/api/inventario")
-def create_insumo(insumo: InsumoCreate):
+def create_insumo(insumo: InsumoCreate, current_user: Dict = Depends(get_current_user)):
     """Crear un nuevo insumo en el inventario"""
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -76,7 +78,7 @@ def create_insumo(insumo: InsumoCreate):
         conn.close()
 
 @router.put("/api/inventario/{id_insumo}")
-def update_insumo(id_insumo: int, insumo: InsumoUpdate):
+def update_insumo(id_insumo: int, insumo: InsumoUpdate, current_user: Dict = Depends(get_current_user)):
     """Actualizar un insumo existente"""
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -217,7 +219,7 @@ def get_movimientos_insumo(id_insumo: int):
         conn.close()
 
 @router.get("/api/inventario/alertas")
-def get_alertas_inventario():
+def get_alertas_inventario(current_user: Dict = Depends(get_current_user)):
     """Obtener insumos con stock bajo o crítico"""
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)

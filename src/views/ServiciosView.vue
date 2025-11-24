@@ -101,10 +101,10 @@
                     <label class="form-label">Vehículo *</label>
                     <select class="form-select" v-model="tipoVehiculoSeleccionado" required @change="calcularPrecio">
                       <option value="">Seleccionar...</option>
-                      <option value="Auto Pequeño">Auto Pequeño</option>
-                      <option value="Auto Grande">Auto Grande</option>
-                      <option value="Camioneta">Camioneta</option>
-                      <option value="Moto">Moto</option>
+                      <option value="auto">Auto</option>
+                      <option value="camioneta">Camioneta</option>
+                      <option value="suv">SUV</option>
+                      <option value="furgon">Furgón</option>
                     </select>
                   </div>
 
@@ -112,9 +112,12 @@
                     <label class="form-label">Servicio *</label>
                     <select class="form-select" v-model="tipoLavadoSeleccionado" required @change="calcularPrecio">
                       <option value="">Seleccionar...</option>
-                      <option value="Lavado Básico">Lavado Básico</option>
-                      <option value="Lavado Completo">Lavado Completo</option>
-                      <option value="Lavado Premium">Lavado Premium</option>
+                      <option value="lavado_simple">Lavado Simple</option>
+                      <option value="lavado_completo">Lavado Completo</option>
+                      <option value="encerado">Encerado</option>
+                      <option value="lavado_motor">Lavado de Motor</option>
+                      <option value="pulido">Pulido</option>
+                      <option value="descontaminacion">Descontaminación</option>
                     </select>
                   </div>
 
@@ -178,13 +181,9 @@ export default {
       empleadoSeleccionado: '',
       montoEditable: 0,
 
-      // Tarifas base para cálculo automático
-      tarifas: {
-        'Auto Pequeño': { 'Lavado Básico': 8000, 'Lavado Completo': 12000, 'Lavado Premium': 20000 },
-        'Auto Grande': { 'Lavado Básico': 10000, 'Lavado Completo': 15000, 'Lavado Premium': 25000 },
-        'Camioneta': { 'Lavado Básico': 12000, 'Lavado Completo': 18000, 'Lavado Premium': 30000 },
-        'Moto': { 'Lavado Básico': 5000, 'Lavado Completo': 8000, 'Lavado Premium': 12000 }
-      }
+      // Tarifas base - NOTA: Estas se cargarán dinámicamente desde la BD
+      tarifas: {},
+      tarifasOriginales: []
     }
   },
   mounted() {
@@ -196,7 +195,7 @@ export default {
       try {
         // 1. Cargar Servicios
         const respuesta = await api.getServicios();
-        
+
         // CORRECCIÓN: Verificamos si la respuesta viene directa o dentro de .data
         // Esto hace que funcione sin importar cómo esté configurado tu api.js
         const listaServicios = respuesta.data || respuesta;
@@ -213,18 +212,31 @@ export default {
           fecha: new Date(s.fecha).toLocaleDateString(),
           hora: new Date(s.fecha).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
           patente: s.patente,
-          vehiculo: s.tipo_vehiculo,
-          tipoServicio: s.tipo_servicio,
+          vehiculo: this.formatearTipoVehiculo(s.tipo_vehiculo),
+          tipoServicio: this.formatearTipoServicio(s.tipo_servicio),
           empleado: s.nombre_empleado,
           monto: s.monto_total,
           estado: s.estado,
-          estadoColor: s.estado === 'pendiente' ? 'warning' : 'success'
+          estadoColor: s.estado === 'pendiente' ? 'warning' : (s.estado === 'completado' ? 'success' : 'danger')
         }));
 
         // 2. Cargar Empleados
         const respuestaEmp = await api.getEmpleados();
         // Aplicamos la misma lógica de seguridad para empleados
         this.empleados = respuestaEmp.data || respuestaEmp;
+
+        // 3. Cargar Tarifas dinámicamente desde la BD
+        const respuestaTarifas = await api.getTarifas();
+        this.tarifasOriginales = respuestaTarifas.data || respuestaTarifas;
+
+        // Organizar tarifas en estructura fácil de usar
+        this.tarifas = {};
+        this.tarifasOriginales.forEach(tarifa => {
+          if (!this.tarifas[tarifa.tipo_vehiculo]) {
+            this.tarifas[tarifa.tipo_vehiculo] = {};
+          }
+          this.tarifas[tarifa.tipo_vehiculo][tarifa.tipo_servicio] = tarifa.precio;
+        });
 
       } catch (error) {
         console.error("Error cargando datos:", error);
@@ -267,12 +279,36 @@ export default {
       }
     },
 
-    // 3. Calcular precio sugerido
+    // 3. Calcular precio sugerido desde tarifas dinámicas
     calcularPrecio() {
       if (this.tipoVehiculoSeleccionado && this.tipoLavadoSeleccionado) {
         const precio = this.tarifas[this.tipoVehiculoSeleccionado]?.[this.tipoLavadoSeleccionado] || 0;
         this.montoEditable = precio;
       }
+    },
+
+    // Formatear tipo de vehículo para mostrar
+    formatearTipoVehiculo(tipo) {
+      const formatos = {
+        'auto': 'Auto',
+        'camioneta': 'Camioneta',
+        'suv': 'SUV',
+        'furgon': 'Furgón'
+      };
+      return formatos[tipo] || tipo;
+    },
+
+    // Formatear tipo de servicio para mostrar
+    formatearTipoServicio(tipo) {
+      const formatos = {
+        'lavado_simple': 'Lavado Simple',
+        'lavado_completo': 'Lavado Completo',
+        'encerado': 'Encerado',
+        'lavado_motor': 'Lavado de Motor',
+        'pulido': 'Pulido',
+        'descontaminacion': 'Descontaminación'
+      };
+      return formatos[tipo] || tipo;
     },
 
     limpiarFormulario() {

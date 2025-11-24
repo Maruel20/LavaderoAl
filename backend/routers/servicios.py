@@ -1,12 +1,14 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from database import get_db_connection
+from dependencies import get_current_user, require_role
+from typing import Dict
 from schemas import ServicioCreate
 import mysql.connector
 
 router = APIRouter()
 
 @router.get("/api/servicios")
-def get_servicios():
+def get_servicios(current_user: Dict = Depends(get_current_user)):
     """Obtener todos los servicios con información del empleado"""
     conn = None
     cursor = None
@@ -32,7 +34,7 @@ def get_servicios():
             conn.close()
 
 @router.post("/api/servicios")
-def create_servicio(data: ServicioCreate):
+def create_servicio(data: ServicioCreate, current_user: Dict = Depends(get_current_user)):
     """Crear un nuevo servicio y calcular comisión"""
     conn = None
     cursor = None

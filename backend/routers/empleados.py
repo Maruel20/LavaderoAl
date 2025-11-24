@@ -1,12 +1,14 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from database import get_db_connection
+from dependencies import get_current_user, require_role
+from typing import Dict
 from schemas import EmpleadoCreate
 import mysql.connector
 
 router = APIRouter()
 
 @router.get("/api/empleados")
-def get_empleados():
+def get_empleados(current_user: Dict = Depends(get_current_user)):
     """Obtener todos los empleados activos"""
     conn = None
     cursor = None
@@ -25,7 +27,7 @@ def get_empleados():
             conn.close()
 
 @router.post("/api/empleados")
-def create_empleado(empleado: EmpleadoCreate):
+def create_empleado(empleado: EmpleadoCreate, current_user: Dict = Depends(require_role("admin", "empleado"))):
     """Crear un nuevo empleado"""
     conn = None
     cursor = None

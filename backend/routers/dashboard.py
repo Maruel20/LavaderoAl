@@ -1,10 +1,12 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from database import get_db_connection
+from dependencies import get_current_user, require_role
+from typing import Dict
 
 router = APIRouter()
 
 @router.get("/api/dashboard/metricas")
-def get_metricas_dashboard():
+def get_metricas_dashboard(current_user: Dict = Depends(get_current_user)):
     """Obtener métricas principales del dashboard"""
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -137,7 +139,7 @@ def get_servicios_recientes(limit: int = 10):
         conn.close()
 
 @router.get("/api/dashboard/alertas-inventario")
-def get_alertas_inventario():
+def get_alertas_inventario(current_user: Dict = Depends(get_current_user)):
     """Obtener alertas de inventario con stock bajo"""
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -235,7 +237,7 @@ def get_grafico_servicios(dias: int = 7):
         conn.close()
 
 @router.get("/api/dashboard/servicios-por-tipo")
-def get_servicios_por_tipo():
+def get_servicios_por_tipo(current_user: Dict = Depends(get_current_user)):
     """Obtener distribución de servicios por tipo del mes actual"""
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -264,7 +266,7 @@ def get_servicios_por_tipo():
         conn.close()
 
 @router.get("/api/dashboard/liquidaciones-pendientes")
-def get_liquidaciones_pendientes():
+def get_liquidaciones_pendientes(current_user: Dict = Depends(get_current_user)):
     """Obtener liquidaciones pendientes de pago"""
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
