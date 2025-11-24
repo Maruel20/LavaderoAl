@@ -1,140 +1,187 @@
 import axios from 'axios';
 
-// Asegúrate de que este puerto coincida con tu uvicorn (8000 o 5000)
+// Configuración base de axios
 const API_URL = 'http://localhost:8000/api';
+
+// Crear instancia de axios con configuración base
+const apiClient = axios.create({
+    baseURL: API_URL,
+    timeout: 10000,
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
+
+// Interceptor para agregar el token JWT a todas las peticiones
+apiClient.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+// Interceptor para manejar errores globalmente
+apiClient.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        if (error.response) {
+            // Error de respuesta del servidor
+            if (error.response.status === 401) {
+                // Token inválido o expirado - redirigir a login
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            }
+        } else if (error.request) {
+            // Error de red - sin respuesta del servidor
+            console.error('Error de red: No se pudo conectar con el servidor');
+        } else {
+            console.error('Error:', error.message);
+        }
+        return Promise.reject(error);
+    }
+);
 
 export default {
     // --- AUTH ---
     async login(username, password) {
-        const response = await axios.post(`${API_URL}/login`, { username, password });
+        const response = await apiClient.post('/login', { username, password });
         return response.data;
     },
 
     // --- SERVICIOS ---
     async getServicios() {
-        const response = await axios.get(`${API_URL}/servicios`);
+        const response = await apiClient.get('/servicios');
         return response.data;
     },
     async createServicio(servicio) {
-        const response = await axios.post(`${API_URL}/servicios`, servicio);
+        const response = await apiClient.post('/servicios', servicio);
         return response.data;
     },
 
     // --- EMPLEADOS ---
     async getEmpleados() {
-        const response = await axios.get(`${API_URL}/empleados`);
+        const response = await apiClient.get('/empleados');
         return response.data;
     },
     async createEmpleado(empleado) {
-        const response = await axios.post(`${API_URL}/empleados`, empleado);
+        const response = await apiClient.post('/empleados', empleado);
         return response.data;
     },
 
     // --- INVENTARIO ---
     async getInventario() {
-        const response = await axios.get(`${API_URL}/inventario`);
+        const response = await apiClient.get('/inventario');
         return response.data;
     },
     async createInsumo(insumo) {
-        const response = await axios.post(`${API_URL}/inventario`, insumo);
+        const response = await apiClient.post('/inventario', insumo);
         return response.data;
     },
     async updateInsumo(id, insumo) {
-        const response = await axios.put(`${API_URL}/inventario/${id}`, insumo);
+        const response = await apiClient.put(`/inventario/${id}`, insumo);
         return response.data;
     },
     async registrarMovimiento(movimiento) {
-        const response = await axios.post(`${API_URL}/inventario/movimiento`, movimiento);
+        const response = await apiClient.post('/inventario/movimiento', movimiento);
         return response.data;
     },
     async getMovimientosInsumo(id) {
-        const response = await axios.get(`${API_URL}/inventario/movimientos/${id}`);
+        const response = await apiClient.get(`/inventario/movimientos/${id}`);
         return response.data;
     },
     async getAlertasInventario() {
-        const response = await axios.get(`${API_URL}/inventario/alertas`);
+        const response = await apiClient.get('/inventario/alertas');
         return response.data;
     },
 
     // --- LIQUIDACIONES ---
     async getLiquidaciones() {
-        const response = await axios.get(`${API_URL}/liquidaciones`);
+        const response = await apiClient.get('/liquidaciones');
         return response.data;
     },
     async getLiquidacionDetalle(id) {
-        const response = await axios.get(`${API_URL}/liquidaciones/${id}`);
+        const response = await apiClient.get(`/liquidaciones/${id}`);
         return response.data;
     },
     async calcularLiquidacion(liquidacion) {
-        const response = await axios.post(`${API_URL}/liquidaciones/calcular`, liquidacion);
+        const response = await apiClient.post('/liquidaciones/calcular', liquidacion);
         return response.data;
     },
     async marcarLiquidacionPagada(id) {
-        const response = await axios.put(`${API_URL}/liquidaciones/${id}/pagar`);
+        const response = await apiClient.put(`/liquidaciones/${id}/pagar`);
         return response.data;
     },
     async getLiquidacionesEmpleado(idEmpleado) {
-        const response = await axios.get(`${API_URL}/liquidaciones/empleado/${idEmpleado}`);
+        const response = await apiClient.get(`/liquidaciones/empleado/${idEmpleado}`);
         return response.data;
     },
 
     // --- CONVENIOS ---
     async getConvenios() {
-        const response = await axios.get(`${API_URL}/convenios`);
+        const response = await apiClient.get('/convenios');
         return response.data;
     },
     async getConvenioDetalle(id) {
-        const response = await axios.get(`${API_URL}/convenios/${id}`);
+        const response = await apiClient.get(`/convenios/${id}`);
         return response.data;
     },
     async createConvenio(convenio) {
-        const response = await axios.post(`${API_URL}/convenios`, convenio);
+        const response = await apiClient.post('/convenios', convenio);
         return response.data;
     },
     async updateConvenio(id, convenio) {
-        const response = await axios.put(`${API_URL}/convenios/${id}`, convenio);
+        const response = await apiClient.put(`/convenios/${id}`, convenio);
         return response.data;
     },
     async addVehiculoConvenio(idConvenio, vehiculo) {
-        const response = await axios.post(`${API_URL}/convenios/${idConvenio}/vehiculos`, vehiculo);
+        const response = await apiClient.post(`/convenios/${idConvenio}/vehiculos`, vehiculo);
         return response.data;
     },
     async getVehiculosConvenio(idConvenio) {
-        const response = await axios.get(`${API_URL}/convenios/${idConvenio}/vehiculos`);
+        const response = await apiClient.get(`/convenios/${idConvenio}/vehiculos`);
         return response.data;
     },
     async removeVehiculoConvenio(idVehiculo) {
-        const response = await axios.delete(`${API_URL}/convenios/vehiculos/${idVehiculo}`);
+        const response = await apiClient.delete(`/convenios/vehiculos/${idVehiculo}`);
         return response.data;
     },
     async verificarConvenioPatente(patente) {
-        const response = await axios.get(`${API_URL}/convenios/patente/${patente}`);
+        const response = await apiClient.get(`/convenios/patente/${patente}`);
         return response.data;
     },
 
     // --- TARIFAS ---
     async getTarifas() {
-        const response = await axios.get(`${API_URL}/tarifas`);
+        const response = await apiClient.get('/tarifas');
         return response.data;
     },
     async getTarifaEspecifica(tipoVehiculo, tipoServicio) {
-        const response = await axios.get(`${API_URL}/tarifas/${tipoVehiculo}/${tipoServicio}`);
+        const response = await apiClient.get(`/tarifas/${tipoVehiculo}/${tipoServicio}`);
         return response.data;
     },
     async updateTarifa(tipoVehiculo, tipoServicio, precio) {
-        const response = await axios.put(`${API_URL}/tarifas/${tipoVehiculo}/${tipoServicio}`, { precio });
+        const response = await apiClient.put(`/tarifas/${tipoVehiculo}/${tipoServicio}`, { precio });
         return response.data;
     },
     async getTarifasVehiculo(tipoVehiculo) {
-        const response = await axios.get(`${API_URL}/tarifas/vehiculo/${tipoVehiculo}`);
+        const response = await apiClient.get(`/tarifas/vehiculo/${tipoVehiculo}`);
         return response.data;
     },
     async getTiposVehiculos() {
-        const response = await axios.get(`${API_URL}/tarifas/tipos/vehiculos`);
+        const response = await apiClient.get('/tarifas/tipos/vehiculos');
         return response.data;
     },
     async getTiposServicios() {
-        const response = await axios.get(`${API_URL}/tarifas/tipos/servicios`);
+        const response = await apiClient.get('/tarifas/tipos/servicios');
         return response.data;
     },
 
@@ -143,65 +190,65 @@ export default {
         const params = {};
         if (fechaInicio) params.fecha_inicio = fechaInicio;
         if (fechaFin) params.fecha_fin = fechaFin;
-        const response = await axios.get(`${API_URL}/reportes/general`, { params });
+        const response = await apiClient.get('/reportes/general', { params });
         return response.data;
     },
     async getReporteEmpleados(fechaInicio, fechaFin) {
         const params = {};
         if (fechaInicio) params.fecha_inicio = fechaInicio;
         if (fechaFin) params.fecha_fin = fechaFin;
-        const response = await axios.get(`${API_URL}/reportes/empleados`, { params });
+        const response = await apiClient.get('/reportes/empleados', { params });
         return response.data;
     },
     async getReporteServiciosDiarios(dias = 30) {
-        const response = await axios.get(`${API_URL}/reportes/servicios-diarios`, { params: { dias } });
+        const response = await apiClient.get('/reportes/servicios-diarios', { params: { dias } });
         return response.data;
     },
     async getReporteConvenios(fechaInicio, fechaFin) {
         const params = {};
         if (fechaInicio) params.fecha_inicio = fechaInicio;
         if (fechaFin) params.fecha_fin = fechaFin;
-        const response = await axios.get(`${API_URL}/reportes/convenios`, { params });
+        const response = await apiClient.get('/reportes/convenios', { params });
         return response.data;
     },
     async getReporteInventario() {
-        const response = await axios.get(`${API_URL}/reportes/inventario`);
+        const response = await apiClient.get('/reportes/inventario');
         return response.data;
     },
     async getReporteFinanciero(anio) {
         const params = {};
         if (anio) params.anio = anio;
-        const response = await axios.get(`${API_URL}/reportes/financiero`, { params });
+        const response = await apiClient.get('/reportes/financiero', { params });
         return response.data;
     },
 
     // --- DASHBOARD ---
     async getMetricasDashboard() {
-        const response = await axios.get(`${API_URL}/dashboard/metricas`);
+        const response = await apiClient.get('/dashboard/metricas');
         return response.data;
     },
     async getServiciosRecientes(limit = 10) {
-        const response = await axios.get(`${API_URL}/dashboard/servicios-recientes`, { params: { limit } });
+        const response = await apiClient.get('/dashboard/servicios-recientes', { params: { limit } });
         return response.data;
     },
     async getAlertasInventarioDashboard() {
-        const response = await axios.get(`${API_URL}/dashboard/alertas-inventario`);
+        const response = await apiClient.get('/dashboard/alertas-inventario');
         return response.data;
     },
     async getEmpleadosTop(limit = 5) {
-        const response = await axios.get(`${API_URL}/dashboard/empleados-top`, { params: { limit } });
+        const response = await apiClient.get('/dashboard/empleados-top', { params: { limit } });
         return response.data;
     },
     async getGraficoServicios(dias = 7) {
-        const response = await axios.get(`${API_URL}/dashboard/grafico-servicios`, { params: { dias } });
+        const response = await apiClient.get('/dashboard/grafico-servicios', { params: { dias } });
         return response.data;
     },
     async getServiciosPorTipo() {
-        const response = await axios.get(`${API_URL}/dashboard/servicios-por-tipo`);
+        const response = await apiClient.get('/dashboard/servicios-por-tipo');
         return response.data;
     },
     async getLiquidacionesPendientes() {
-        const response = await axios.get(`${API_URL}/dashboard/liquidaciones-pendientes`);
+        const response = await apiClient.get('/dashboard/liquidaciones-pendientes');
         return response.data;
     }
 };

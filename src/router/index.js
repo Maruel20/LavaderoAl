@@ -60,24 +60,22 @@ const router = createRouter({
   ],
 })
 
-// Descomentar cuando el backend esté listo
-/*
+// Protección de rutas con autenticación
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
-  
+
   // Si no hay token y no va a login, redirigir a login
   if (!token && to.name !== 'login') {
     next({ name: 'login' })
-  } 
+  }
   // Si hay token y va a login, redirigir a dashboard
   else if (token && to.name === 'login') {
     next({ name: 'dashboard' })
-  } 
+  }
   // En cualquier otro caso, permitir navegación
   else {
     next()
   }
 })
-*/
 
 export default router
