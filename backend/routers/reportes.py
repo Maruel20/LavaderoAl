@@ -1,5 +1,7 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from database import get_db_connection
+from dependencies import get_current_user, require_role
+from typing import Dict
 from typing import Optional
 
 router = APIRouter()
@@ -189,7 +191,7 @@ def get_reporte_convenios(fecha_inicio: Optional[str] = None, fecha_fin: Optiona
         conn.close()
 
 @router.get("/api/reportes/inventario")
-def get_reporte_inventario():
+def get_reporte_inventario(current_user: Dict = Depends(get_current_user)):
     """Obtener reporte de estado del inventario"""
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)

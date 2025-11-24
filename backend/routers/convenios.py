@@ -1,11 +1,13 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from database import get_db_connection
+from dependencies import get_current_user, require_role
+from typing import Dict
 from schemas import ConvenioCreate, ConvenioUpdate, VehiculoConvenioCreate
 
 router = APIRouter()
 
 @router.get("/api/convenios")
-def get_convenios():
+def get_convenios(current_user: Dict = Depends(get_current_user)):
     """Obtener todos los convenios"""
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -65,7 +67,7 @@ def get_convenio_detalle(id_convenio: int):
         conn.close()
 
 @router.post("/api/convenios")
-def create_convenio(convenio: ConvenioCreate):
+def create_convenio(convenio: ConvenioCreate, current_user: Dict = Depends(require_role("admin"))):
     """Crear un nuevo convenio"""
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -105,7 +107,7 @@ def create_convenio(convenio: ConvenioCreate):
         conn.close()
 
 @router.put("/api/convenios/{id_convenio}")
-def update_convenio(id_convenio: int, convenio: ConvenioUpdate):
+def update_convenio(id_convenio: int, convenio: ConvenioUpdate, current_user: Dict = Depends(get_current_user)):
     """Actualizar un convenio existente"""
     conn = get_db_connection()
     cursor = conn.cursor()

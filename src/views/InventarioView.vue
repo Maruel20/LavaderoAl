@@ -82,9 +82,11 @@
           <div class="col-md-3">
             <select class="form-select" v-model="filtroCategoria">
               <option value="">Todas las categorías</option>
-              <option value="limpieza">Limpieza</option>
-              <option value="encerado">Encerado</option>
+              <option value="quimicos">Químicos</option>
+              <option value="ceras">Ceras</option>
               <option value="herramientas">Herramientas</option>
+              <option value="accesorios">Accesorios</option>
+              <option value="otros">Otros</option>
             </select>
           </div>
           <div class="col-md-3">
@@ -194,9 +196,11 @@
                 <label class="form-label">Categoría *</label>
                 <select class="form-select" v-model="insumoForm.categoria" required>
                   <option value="">Seleccionar...</option>
-                  <option value="limpieza">Limpieza</option>
-                  <option value="encerado">Encerado</option>
+                  <option value="quimicos">Químicos</option>
+                  <option value="ceras">Ceras</option>
                   <option value="herramientas">Herramientas</option>
+                  <option value="accesorios">Accesorios</option>
+                  <option value="otros">Otros</option>
                 </select>
               </div>
               <div class="row">
@@ -214,10 +218,11 @@
                   <label class="form-label">Unidad de Medida *</label>
                   <select class="form-select" v-model="insumoForm.unidad" required>
                     <option value="">Seleccionar...</option>
-                    <option value="L">Litros</option>
-                    <option value="ml">Mililitros</option>
-                    <option value="unidad">Unidades</option>
-                    <option value="kg">Kilogramos</option>
+                    <option value="litro">Litro</option>
+                    <option value="kilo">Kilogramo</option>
+                    <option value="unidad">Unidad</option>
+                    <option value="caja">Caja</option>
+                    <option value="galon">Galón</option>
                   </select>
                 </div>
                 <div class="col-md-6 mb-3">

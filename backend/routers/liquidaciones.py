@@ -1,12 +1,14 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from database import get_db_connection
+from dependencies import get_current_user, require_role
+from typing import Dict
 from schemas import LiquidacionCreate
 from datetime import datetime
 
 router = APIRouter()
 
 @router.get("/api/liquidaciones")
-def get_liquidaciones():
+def get_liquidaciones(current_user: Dict = Depends(get_current_user)):
     """Obtener todas las liquidaciones"""
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
