@@ -7,6 +7,8 @@ app = FastAPI(title="Lavadero AL API")
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 
 app.add_middleware(
@@ -33,4 +35,15 @@ app.include_router(dashboard.router)
 
 @app.get("/")
 def root():
-    return {"message": "API del Lavadero funcionando correctamente 🚀"}
+    return {
+        "message": "API del Lavadero AL funcionando correctamente",
+        "version": "1.0.0",
+        "status": "online"
+    }
+
+@app.get("/health")
+def health_check():
+    return {
+        "status": "healthy",
+        "service": "Lavadero AL API"
+    }
